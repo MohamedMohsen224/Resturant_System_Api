@@ -77,7 +77,6 @@ namespace Resturant_Api.Controllers
 
             try
             {
-                // Call the service to update the category
                 var isUpdated = await categoryServices.UpdateCategory(cat, Id);
 
                 if (!isUpdated)
@@ -85,13 +84,10 @@ namespace Resturant_Api.Controllers
                     return NotFound(new ApiErrorResponse(404, "Category not found."));
                 }
 
-                // Return success response
                 return Ok(new { message = "Category updated successfully." });
             }
             catch (Exception ex)
             {
-                // Log the exception (optional)
-                // _logger.LogError(ex, "Error occurred while updating category.");
 
                 return StatusCode(500, new ApiErrorResponse(500, $"Internal server error: {ex.Message}"));
             }

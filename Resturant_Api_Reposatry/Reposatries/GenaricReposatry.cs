@@ -5,6 +5,7 @@ using Resturant_Api_Reposatry.Reposatries.Evelutor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -59,6 +60,19 @@ namespace Resturant_Api_Reposatry.Reposatries
         public async Task<IReadOnlyList<T>> GetAllAsync()
         {
             return await context.Set<T>().ToListAsync();
+        }
+
+        public async Task<IEnumerable<T>> GetAllAsyncForClean(Expression<Func<T, bool>> predicate = null)
+        {
+            IQueryable<T> query = context.Set<T>();
+
+            // Apply the predicate if provided
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            return await query.ToListAsync();
         }
     }
    
