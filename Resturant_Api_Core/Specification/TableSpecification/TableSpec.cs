@@ -15,7 +15,6 @@ namespace Resturant_Api_Core.Specification.TableSpecification
         (!parms.TableCapacity.HasValue || x.Capacity == parms.TableCapacity)
         )
         {
-            Includes.Add(x => x.Reservation);
             ApplayPagination(parms.PageSize * (parms.PageIndex - 1), parms.PageSize);
             if (!string.IsNullOrEmpty(parms.Sort))
             {
@@ -36,9 +35,9 @@ namespace Resturant_Api_Core.Specification.TableSpecification
                 }
             }
         }
-        public TableSpec(int cap) : base(x => x.Capacity == cap)
+        public TableSpec(int id) : base(x => x.Id == id)
         {
-            
+
         }
         
     }

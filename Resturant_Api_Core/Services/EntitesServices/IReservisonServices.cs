@@ -12,5 +12,7 @@ namespace Resturant_Api_Core.Services.EntitesServices
     {
         Task<IReadOnlyList<Reservison>> GetAllReservisons(ResrveParms parms);
         Task<Reservison> GetById(int id);
+        Task CompleteReservationAsync(int reservationId);
+
     }
 }

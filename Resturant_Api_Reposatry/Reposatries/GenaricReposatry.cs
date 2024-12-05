@@ -40,13 +40,9 @@ namespace Resturant_Api_Reposatry.Reposatries
             return await ApplySpecification(spec).CountAsync();
         }
 
-        public async Task<T> AddAsync(T entity)
-        {
-            await context.AddAsync(entity);
-            await context.SaveChangesAsync();
-            return entity;
+        public async Task AddAsync(T entity)
+            => await context.AddAsync(entity);
 
-        }
         public void Update(T entity)
             => context.Update(entity);
         public void Delete(T entity)

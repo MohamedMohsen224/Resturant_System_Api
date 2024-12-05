@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Resturant_Api.Dtos;
 using Resturant_Api.HandleErrors;
 using Resturant_Api.Helper;
 using Resturant_Api_Core.Entites;
+using Resturant_Api_Core.IUnitOfWork;
 using Resturant_Api_Core.Services.EntitesServices;
 using Resturant_Api_Core.Specification.ReservisonSpecification;
+using Resturant_Api_Core.Specification.TableSpecification;
+using Resturant_Api_Reposatry.UnitOfWork;
 using Resturant_Api_Services.EntitesSERVICES;
 
 namespace Resturant_Api.Controllers
@@ -26,7 +30,7 @@ namespace Resturant_Api.Controllers
             this.tableServices = tableServices;
         }
         [HttpGet]
-        public async Task<ActionResult<Pagination<ReserveDto>>> GetAllReservison(ResrveParms parms)
+        public async Task<ActionResult<Pagination<ReserveDto>>> GetAllReservison([FromQuery]ResrveParms parms)
         {
             var Resrvison = await reservisonServices.GetAllReservisons(parms);
             var Data = mapper.Map<IReadOnlyList<Reservison>, IReadOnlyList<ReserveDto>>(Resrvison);
@@ -37,35 +41,38 @@ namespace Resturant_Api.Controllers
             return Ok(Data);
 
         }
-
+       
         [HttpPost("CreateReservation")]
-        public async Task<IActionResult> CreateReservation([FromBody] RequestResrve requestResrve)
+        public async Task<IActionResult> CreateReservation([FromBody]ReserveDto requestResrve)
         {
+
+            if (requestResrve?.TableId == null)
+            {
+                return BadRequest("Invalid TableId.");
+            }
+
+            // Fetch the table from the database using the provided TableId
+            var table = await tableServices.GetTableById(requestResrve.TableId);
+
+            // Check if the table exists
+            if (table == null)
+            {
+                return NotFound("Table not found.");
+            }
+
             try
             {
-                // Retrieve the table by ID using TableServices
-                var table = await tableServices.GetTableById(requestResrve.Id);
-
-                // Call the ReserveTable method to create the reservation
-                var reservation = await tableServices.ReserveTable(table);
-
-                return Ok(reservation); // Return the created reservation details
+                // Proceed to reserve the table
+                var reservation = await tableServices.ReserveTable(table ,requestResrve.ReservationName);
+                return Ok(reservation);
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
-                // Handle known exceptions and return appropriate responses
-                if (ex.Message.Contains("No Table with this Capcity"))
-                {
-                    return NotFound(ex.Message);
-                }
-                if (ex.Message.Contains("The table is already reserved"))
-                {
-                    return BadRequest(ex.Message);
-                }
-
-                // Catch unexpected errors
-                return StatusCode(500, ex.Message);
+                // Handle specific exceptions
+                return BadRequest(ex.Message);
             }
+
+
         }
 
         [HttpPost("CompleteReservation/{reservationId}")]
@@ -74,7 +81,7 @@ namespace Resturant_Api.Controllers
             try
             {
                 // Call the CompleteReservationAsync function from TableServices to complete the reservation
-                await tableServices.CompleteReservationAsync(reservationId);
+                await reservisonServices.CompleteReservationAsync(reservationId);
 
                 return Ok("Reservation completed successfully.");
             }
@@ -85,12 +92,5 @@ namespace Resturant_Api.Controllers
             }
         }
 
-        [HttpDelete]
-        public async Task<ActionResult> DeleteReservison(int TableId , int ReservationId)
-        {
-              var isdeleted = tableServices.MakeTableAvalible(TableId, ReservationId);
-              return Ok("Reservison is deleted");
-            
-        }
     }
 }

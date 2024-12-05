@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Resturant_Api_Reposatry.Data.AppContext;
 
@@ -11,9 +12,11 @@ using Resturant_Api_Reposatry.Data.AppContext;
 namespace Resturant_Api_Reposatry.Data.Migrations
 {
     [DbContext(typeof(ResturantContext))]
-    partial class ResturantContextModelSnapshot : ModelSnapshot
+    [Migration("20241204120444_Modifythereservation")]
+    partial class Modifythereservation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -208,8 +211,8 @@ namespace Resturant_Api_Reposatry.Data.Migrations
                     b.Property<DateTime>("ReservationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("ReservationEndTime")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeOnly>("ReservationEndTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("ReservationName")
                         .IsRequired()

@@ -44,20 +44,34 @@ namespace Resturant_Api.Controllers
             }
             return Ok(tb);
         }
+
         [HttpGet("GetAvalibleTables")]
         public async Task<ActionResult<Pagination<TableDto>>> GetAvalibleTables([FromQuery] TableParms parms)
         {
+            parms.IsAvalible = TableStatus.Avalible;
+
             var tables = await tableServices.GetAvalibleTables(parms);
-            var mappTb = mapper.Map<IReadOnlyList<Table>, IReadOnlyList<TableDto>>(tables);
-            if(parms.IsAvalible == TableStatus.Avalible)
+
+            // Handle scenarios where no available tables are found
+            if (!tables.Any())
             {
-                new ApiErrorResponse(404, "No Avalible Tables U Can Check In Another Time");
+                return NotFound(new ApiErrorResponse(404, "No available tables found"));
             }
-            return Ok(mappTb);
+            // Map results to TableDto and return OK response
+            var mappedTables = mapper.Map<IReadOnlyList<Table>, IReadOnlyList<TableDto>>(tables);
+            return Ok(mappedTables);
+
 
         }
 
-
+        [HttpPost]
+        public async Task<ActionResult<TableDto>> CreateTable(TableDto tableDto)
+        {
+            var tb = mapper.Map<TableDto, Table>(tableDto);
+            var table = await tableServices.CreateTable(tb);
+            var mappTb = mapper.Map<Table, TableDto>(table);
+            return Ok(mappTb);
+        }
 
     }
 }

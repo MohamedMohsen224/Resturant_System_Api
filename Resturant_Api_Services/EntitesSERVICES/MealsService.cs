@@ -20,9 +20,9 @@ namespace Resturant_Api_Services.EntitesSERVICES
         }
         public async Task<Meals> CreateMeals(Meals meals)
         {
-            var meal = await unitOfWork.Repository<Meals>().AddAsync(meals);
+            await unitOfWork.Repository<Meals>().AddAsync(meals);
             await unitOfWork.Complete();
-            return meal;
+            return meals;
         }
 
         public async Task<bool> DeleteMeals(int Id)

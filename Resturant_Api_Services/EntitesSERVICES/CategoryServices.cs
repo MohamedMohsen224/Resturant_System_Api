@@ -20,9 +20,9 @@ namespace Resturant_Api_Services.EntitesSERVICES
         }
         public async Task<Category> CreateCategory(Category category)
         {
-           var cat = await unitOfWork.Repository<Category>().AddAsync(category);
+           await unitOfWork.Repository<Category>().AddAsync(category);
            await unitOfWork.Complete();
-           return cat;
+           return category;
         }
 
         

@@ -1,4 +1,5 @@
 ﻿using Resturant_Api_Core.Entites;
+using Resturant_Api_Core.Entites.Enum;
 using Resturant_Api_Core.IUnitOfWork;
 using Resturant_Api_Core.Services.EntitesServices;
 using Resturant_Api_Core.Specification.ReservisonSpecification;
@@ -33,5 +34,30 @@ namespace Resturant_Api_Services.EntitesSERVICES
                 throw new Exception("No Reservison with this Id");
             return Resrcison;
         }
+        public async Task CompleteReservationAsync(int reservationId)
+        {
+            var reservationRepo = unitOfWork.Repository<Reservison>();
+            var tableRepo = unitOfWork.Repository<Table>();
+
+            var reservation = await reservationRepo.GetByIdAsync(reservationId);
+            if (reservation == null)
+            {
+                throw new KeyNotFoundException("Reservation not found.");
+            }
+
+            reservation.IsCompleted = true;
+
+            // Make the table available again
+            var table = await tableRepo.GetByIdAsync(reservation.TableId);
+            if (table != null)
+            {
+                table.IsAvailable = TableStatus.Avalible;
+                tableRepo.Update(table);
+            }
+
+            reservationRepo.Delete(reservation);
+            await unitOfWork.Complete();
+        }
+
     }
 }

@@ -21,9 +21,9 @@ namespace Resturant_Api_Services.EntitesSERVICES
         }
         public async Task<Table> CreateTable(Table table)
         {
-            var tb = await unitOfWork.Repository<Table>().AddAsync(table);
+            await unitOfWork.Repository<Table>().AddAsync(table);
             await unitOfWork.Complete();
-            return tb;
+            return table;
             
         }
         public async Task<IReadOnlyList<Table>> GetAllTables(TableParms parms)
@@ -35,98 +35,63 @@ namespace Resturant_Api_Services.EntitesSERVICES
         }
         public async Task<IReadOnlyList<Table>> GetAvalibleTables(TableParms parms)
         {
-            var Spec = new TableSpec(parms);
-            if (parms.IsAvalible == TableStatus.NotAvalible)
-            {
-                throw new Exception("No Avalible Tables");
-            }
-            var AvATables = await unitOfWork.Repository<Table>().GetAllWithSpecAsync(Spec);
-            return AvATables;
-            
-           
+            var spec = new TableSpec(parms); // Set IsAvailable to true
+            var availableTables = await unitOfWork.Repository<Table>().GetAllWithSpecAsync(spec);
+            return availableTables;
+
+
         }
-        public async Task<Table> GetTableById(int Cap)
+        public async Task<Reservison> ReserveTable(Table table, string reservationName)
         {
-            var Spec = new TableSpec(Cap);
+            // Retrieve the table from the database
+            var Spec = new TableSpec(table.Id);
             var tb = await unitOfWork.Repository<Table>().GetByIdWithSpecAsync(Spec);
+
             if (tb == null)
-                throw new Exception("No Table with this Capcity ");
-            return tb;
-        }
-        public async Task<Reservison> ReserveTable(Table table)
-        {
-            if(table.IsAvailable == TableStatus.NotAvalible)
+            {
+                throw new InvalidOperationException("Table not found.");
+            }
+
+            if (tb.IsAvailable == TableStatus.NotAvalible)
             {
                 throw new InvalidOperationException("The table is already reserved.");
             }
 
-            // Create the reservation
-            var reservation = new Reservison
-            {
-                TableId = table.Id,
-                Table = table,
-                ReservationDate = DateTime.Now,
-                ReservationEndTime = TimeOnly.FromDateTime(DateTime.UtcNow.AddHours(23)), // Example end time
-                IsCompleted = false
-            };
-
             // Mark the table as not available
             table.IsAvailable = TableStatus.NotAvalible;
 
-            // Update the table and add the reservation
+            // Update the table
             var tableRepo = unitOfWork.Repository<Table>();
-            var reservationRepo = unitOfWork.Repository<Reservison>();
+            tableRepo.Update(tb);
 
-            tableRepo.Update(table);
+            // Commit the changes for table first
+            await unitOfWork.Complete();
+
+            // Create the reservation with the provided reservation name
+            var reservation = new Reservison
+            {
+                TableId = table.Id,
+                ReservationName = reservationName,  // Set the ReservationName here
+                ReservationDate = DateTime.Now,
+                ReservationEndTime = DateTime.UtcNow.AddHours(23), // Example end time
+                IsCompleted = false
+            };
+
+            // Add the reservation
+            var reservationRepo = unitOfWork.Repository<Reservison>();
             await reservationRepo.AddAsync(reservation);
 
-            // Commit the transaction
+            // Commit the transaction for reservation
             await unitOfWork.Complete();
 
             return reservation;
         }
-        public async Task CompleteReservationAsync(int reservationId)
+        public Task<Table> GetTableById(int id)
         {
-            var reservationRepo = unitOfWork.Repository<Reservison>();
-            var tableRepo = unitOfWork.Repository<Table>();
-
-            var reservation = await reservationRepo.GetByIdAsync(reservationId);
-            if (reservation == null)
-            {
-                throw new KeyNotFoundException("Reservation not found.");
-            }
-
-            reservation.IsCompleted = true;
-
-            // Make the table available again
-            var table = await tableRepo.GetByIdAsync(reservation.TableId);
-            if (table != null)
-            {
-                table.IsAvailable = TableStatus.Avalible;
-                tableRepo.Update(table);
-            }
-
-            reservationRepo.Update(reservation);
-            await unitOfWork.Complete();
-        }
-        public async Task MakeTableAvalible(int tableId , int ReservationId)
-        {
-            var reservationRepo = unitOfWork.Repository<Reservison>();
-            var Table = await unitOfWork.Repository<Table>().GetByIdAsync(tableId);
-            var reservation = await reservationRepo.GetByIdAsync(ReservationId);
-            if (Table == null)
-            {
-                throw new KeyNotFoundException("Table not found.");
-            }
-            if (reservation == null)
-            {
-                throw new KeyNotFoundException("Reservation not found.");
-            }
-            Table.IsAvailable = TableStatus.Avalible;
-            reservation.IsCompleted = true;
-            unitOfWork.Repository<Reservison>().Delete(reservation);
-            await unitOfWork.Complete();
-
+            var Spec = new TableSpec(id);
+            var tb = unitOfWork.Repository<Table>().GetByIdWithSpecAsync(Spec);
+            return tb;
+            
         }
     }
 }

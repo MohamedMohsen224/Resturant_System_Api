@@ -13,7 +13,7 @@ namespace Resturant_Api_Core.Entites
         public SmokingPremissions smoking { get; set; }
         public TableStatus IsAvailable { get; set; }
         public string Floor { get; set; }
-        public int ReservationId { get; set; }
-        public Reservison? Reservation { get; set; }
+        public int? ReservationId { get; set; }
+        public Reservison Reservation { get; set; }
     }
 }

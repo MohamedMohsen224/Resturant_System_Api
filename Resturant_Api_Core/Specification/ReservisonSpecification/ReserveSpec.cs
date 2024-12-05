@@ -12,7 +12,6 @@ namespace Resturant_Api_Core.Specification.ReservisonSpecification
         public ReserveSpec(ResrveParms parms):base(x=> (string.IsNullOrEmpty(parms.Search) || x.ReservationName.ToLower().Contains(parms.Search)) &&
         (!parms.ReserveId.HasValue || x.Id == parms.ReserveId))
         {
-            Includes.Add(x => x.Table);
             ApplayPagination(parms.PageSize * (parms.PageIndex - 1), parms.PageSize);
             if (!string.IsNullOrEmpty(parms.Sort))
             {

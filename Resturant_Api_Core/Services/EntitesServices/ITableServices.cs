@@ -14,10 +14,7 @@ namespace Resturant_Api_Core.Services.EntitesServices
         Task<Table> GetTableById(int id);
         Task<IReadOnlyList<Table>> GetAvalibleTables(TableParms parms);
         Task<Table> CreateTable(Table table);
-        Task<Reservison> ReserveTable(Table table);
-        Task CompleteReservationAsync(int reservationId);
-
-        Task MakeTableAvalible(int tableId, int ReservationId);
+        Task<Reservison> ReserveTable(Table table, string reservationName);
 
     }
 }

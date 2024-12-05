@@ -5,9 +5,9 @@ namespace Resturant_Api.Dtos
     public class TableDto
     {
         public int Id { get; set; }
-        public TableStatus IsAvailable { get; set; }
+        public string IsAvailable { get; set; }
         public int Capacity { get; set; }
         public string Floor { get; set; }
-        public SmokingPremissions smoking { get; set; }
+        public string smoking { get; set; }
     }
 }

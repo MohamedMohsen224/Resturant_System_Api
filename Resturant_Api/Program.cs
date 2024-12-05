@@ -63,6 +63,7 @@ namespace Resturant_Api
             builder.Services.AddScoped<ITableServices, TableServices>();
             builder.Services.AddScoped<IOrderServices, OrderServices>();
             builder.Services.AddScoped<IBasketReposatry, BasketRepo>();
+            builder.Services.AddScoped<IReservisonServices, ReservisonServices>();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             
             #endregion

@@ -8,7 +8,7 @@ namespace Resturant_Api_Core.Entites.Enum
 {
     public enum TableStatus
     {
-        Avalible,
-        NotAvalible
+        Avalible=1,
+        NotAvalible=2
     }
 }
