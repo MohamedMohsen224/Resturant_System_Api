@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Resturant_Api.Dtos.AppUserDTO;
 using Resturant_Api.HandleErrors;
@@ -15,12 +16,15 @@ namespace Resturant_Api.Controllers.UserController
         private readonly IAuthServices authServices;
         private readonly UserManager<AppUser> userManager;
         private readonly SignInManager<AppUser> signInManager;
+        private readonly IEmailSender emailSender;
 
-        public UserController(IAuthServices authServices,UserManager<AppUser> userManager,SignInManager<AppUser> signInManager)
+        public UserController(IAuthServices authServices,UserManager<AppUser> userManager,SignInManager<AppUser> signInManager , IEmailSender emailSender)
         {
             this.authServices = authServices;
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.emailSender = emailSender;
+            this.emailSender = emailSender;
         }
 
         [HttpPost("Login")]
@@ -64,5 +68,78 @@ namespace Resturant_Api.Controllers.UserController
             });
         }
 
+        [HttpPost("RequestPasswordReset")]
+        public async Task<IActionResult> RequestPasswordReset(ForgotPasswordDto forgotPasswordDto)
+        {
+            var user = await userManager.FindByEmailAsync(forgotPasswordDto.Email);
+            if (user == null)
+            {
+                return RedirectToAction("ForgotPassword", new { message = "Password reset instructions have been sent (if the email address exists)." });
+            }
+
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+            var callbackUrl = Url.Action(
+                "ResetPassword",
+                "Account",
+                new { userId = user.Id, code = token },
+                Request.Scheme);
+
+            var emailMessage = $"Please click the link below to reset your password for {user.Email}:\n{callbackUrl}";
+
+            await emailSender.SendEmailAsync(user.Email, "Reset Your Password", emailMessage);
+
+            return RedirectToAction("ForgotPassword", new { message = "Password reset instructions have been sent to your email." });
+        }
+
+        [HttpPost("ResetPassword")]
+        public async Task<ActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
+        {
+            var user = await userManager.FindByEmailAsync(resetPasswordDto.Email);
+            var result = await userManager.ChangePasswordAsync(user, resetPasswordDto.NewPassword, resetPasswordDto.ConfirmPassword);
+            if (result.Succeeded is true && resetPasswordDto.NewPassword == resetPasswordDto.ConfirmPassword)
+                return Ok(new UserDto()
+                {
+                    Email = user.Email,
+                    UserName = user.UserName,
+                    Token = await authServices.CreateToken(user, userManager)
+
+                });
+            else
+                return BadRequest(new ApiErrorResponse(400));
+        }
+
+        [HttpGet("GetUser")]
+        public async Task<ActionResult<UserDto>> GetUser(UserDto userDto)
+        {
+            var user = await userManager.FindByEmailAsync(userDto.Email);
+            if (user == null)
+                return BadRequest(new ApiErrorResponse(400));
+            return Ok(new UserDto()
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Token = await authServices.CreateToken(user, userManager)
+            });
+        }
+
+        [HttpPut("UpdateUser")]
+        public async Task<ActionResult<UserDto>> UpdateUser(UserDto userDto)
+        {
+            var user = await userManager.FindByEmailAsync(userDto.Email);
+            user.UserName = userDto.UserName;
+            user.Email = userDto.Email;
+            var result = await userManager.UpdateAsync(user);
+            if (result.Succeeded is false)
+                return BadRequest(new ApiErrorResponse(400));
+            return Ok(new UserDto()
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Token = await authServices.CreateToken(user, userManager)
+            });
+        }
+
+       
     }
 }

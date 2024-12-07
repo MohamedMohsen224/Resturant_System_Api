@@ -93,6 +93,19 @@ namespace Resturant_Api_Services.EntitesSERVICES
             return tb;
             
         }
+        public async Task<bool> DeleteTable(int id)
+        {
+            var Spec = new TableSpec(id);
+            var tb = await unitOfWork.Repository<Table>().GetByIdWithSpecAsync(Spec);
+            if (tb == null)
+            {
+                return false;
+            }
+            unitOfWork.Repository<Table>().Delete(tb);
+            await unitOfWork.Complete();
+            return true;
+            
+        }
     }
 }
 

@@ -73,5 +73,16 @@ namespace Resturant_Api.Controllers
             return Ok(mappTb);
         }
 
+        [HttpDelete]
+        public async Task<ActionResult> DeleteTable(int Id)
+        {
+            var table = await tableServices.DeleteTable(Id);
+            if (!table)
+            {
+                return NotFound(new ApiErrorResponse(404, "No Table With this id"));
+            }
+            return Ok("Table Deleted");
+        }
+
     }
 }

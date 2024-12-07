@@ -15,6 +15,7 @@ namespace Resturant_Api_Core.Services.EntitesServices
         Task<IReadOnlyList<Table>> GetAvalibleTables(TableParms parms);
         Task<Table> CreateTable(Table table);
         Task<Reservison> ReserveTable(Table table, string reservationName);
+        Task<bool> DeleteTable(int id);
 
     }
 }

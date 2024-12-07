@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -65,6 +66,7 @@ namespace Resturant_Api
             builder.Services.AddScoped<IBasketReposatry, BasketRepo>();
             builder.Services.AddScoped<IReservisonServices, ReservisonServices>();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
             
             #endregion
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
