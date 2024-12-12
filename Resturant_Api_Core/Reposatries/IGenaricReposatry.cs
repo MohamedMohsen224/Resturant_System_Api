@@ -12,6 +12,8 @@ namespace Resturant_Api_Core.Reposatries
         Task<IEnumerable<T>> GetAllAsyncForClean(Expression<Func<T, bool>> predicate = null);
         Task<T> GetByIdAsync(int id);
         Task<IReadOnlyList<T>> GetAllAsync();
+
+        Task<IReadOnlyList<T>> GetAllCqrsAsync(CancellationToken cancellationToken);
         Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecification<T> spec);
         Task<T> GetByIdWithSpecAsync(ISpecification<T> spec);
         Task AddAsync(T entity);

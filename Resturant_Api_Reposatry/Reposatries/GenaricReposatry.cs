@@ -70,6 +70,12 @@ namespace Resturant_Api_Reposatry.Reposatries
 
             return await query.ToListAsync();
         }
+        //Cqrs
+        public async Task<IReadOnlyList<T>> GetAllCqrsAsync(CancellationToken cancellationToken)
+        {
+            return await context.Set<T>().ToListAsync(cancellationToken);
+
+        }
     }
    
 }

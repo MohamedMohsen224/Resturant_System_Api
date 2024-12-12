@@ -12,6 +12,8 @@ using Resturant_Api_Core.Reposatries;
 using Resturant_Api_Core.Services.AuthServices;
 using Resturant_Api_Core.Services.EntitesServices;
 using Resturant_Api_Core.Services.OrderServises;
+using Resturant_Api_Reposatry.CQRS;
+using Resturant_Api_Reposatry.CQRS.Handlers;
 using Resturant_Api_Reposatry.Data.AppContext;
 using Resturant_Api_Reposatry.identity;
 using Resturant_Api_Reposatry.Reposatries;
@@ -20,7 +22,6 @@ using Resturant_Api_Services.AuthService;
 using Resturant_Api_Services.EntitesSERVICES;
 using Resturant_Api_Services.EntitesSERVICES.OrderServ;
 using StackExchange.Redis;
-
 namespace Resturant_Api
 {
     public class Program
@@ -67,7 +68,6 @@ namespace Resturant_Api
             builder.Services.AddScoped<IReservisonServices, ReservisonServices>();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddTransient<IEmailSender, EmailSender>();
-            
             #endregion
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
