@@ -1,21 +1,19 @@
-# E-Commerce Platform - Talabat Clone
+# Restaurant Management System
 
-A backend e-commerce API simulating Talabat, built with scalability and caching in mind.
+A complete backend Api system to manage restaurant operations.
 
-##  Tech Stack
+## 🛠 Tech Stack
 - ASP.NET Core Web API
-- Redis for Caching
-- Onion Architecture
+- Redis (Caching)
 - JWT Authentication
+- Onion Architecture
 - SQL Server
 
-## Features
-- User authentication and authorization
-- Product and category management
-- Cart and order APIs
-- Redis caching for product listing performance
+## 🔑 Features
+- Table and order management
+- Menu creation and editing
+- Real-time updates with Redis caching
+- Auth system with JWT
 
-##  How to Run
-1. Clone the repo
-2. Set up `appsettings.json` with your SQL Server and Redis settings
-3. Run using Visual Studio or `dotnet run`
+## 📁 Architecture
+- Backend follows Onion Architecture
